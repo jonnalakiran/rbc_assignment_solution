@@ -1,3 +1,4 @@
+
 # RBC Assignment Solution
 
 
@@ -12,7 +13,6 @@ This repository contains a complete solution for all three assignment sections.
 
 
 
-```text
 rbc\\\_assignment\\\_solution/
 ├── README.md
 ├── requirements.txt
@@ -229,3 +229,6 @@ filtered\\\_properties\\\_below\\\_avg\\\_price\\\_per\\\_sqft.csv
 * In a real environment, Ansible email settings may need SMTP server details or delegation to a mail relay host.
 * If Elasticsearch is not available during local testing, the Flask API still validates payloads and will return a connection error message instead of silently failing.
 
+=======
+"# rbc_assignment_solution" 
+>>>>>>> fd0fff17892452093a577f4c1beef5d30734da83
