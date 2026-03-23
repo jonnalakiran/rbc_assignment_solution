@@ -1,0 +1,89 @@
+---
+- name: Verify installation of allocated services
+  hosts: all
+  gather_facts: true
+  vars:
+    service_package_map:
+      httpd: httpd
+      rabbitmq-server: rabbitmq-server
+      postgresql: postgresql-server
+  tasks:
+    - name: Show selected action
+      ansible.builtin.debug:
+        msg: "Running action={{ action | default('undefined') }}"
+
+    - name: Gather installed package facts
+      ansible.builtin.package_facts:
+      when: action == "verify_install"
+
+    - name: Check whether allocated service package is installed
+      ansible.builtin.set_fact:
+        package_installed: "{{ service_package_map[service_name] in ansible_facts.packages }}"
+      when: action == "verify_install"
+
+    - name: Report installed package state
+      ansible.builtin.debug:
+        msg: "Host {{ inventory_hostname }} service {{ service_name }} installed={{ package_installed }}"
+      when: action == "verify_install"
+
+    - name: Illustrative installation for httpd only if missing
+      ansible.builtin.yum:
+        name: httpd
+        state: present
+      when:
+        - action == "verify_install"
+        - service_name == "httpd"
+        - not package_installed
+
+- name: Check disk usage on all servers and alert on threshold breach
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Collect disk usage with df
+      ansible.builtin.command: df -P /
+      register: disk_cmd
+      changed_when: false
+      when: action == "check-disk"
+
+    - name: Parse root disk usage percent
+      ansible.builtin.set_fact:
+        root_disk_used_pct: "{{ (disk_cmd.stdout_lines[1].split()[4]).replace('%', '') | int }}"
+      when: action == "check-disk"
+
+    - name: Report disk usage
+      ansible.builtin.debug:
+        msg: "Host {{ inventory_hostname }} root disk usage is {{ root_disk_used_pct }}%"
+      when: action == "check-disk"
+
+    - name: Send email alert if usage is greater than 80%
+      community.general.mail:
+        host: localhost
+        port: 25
+        to: "{{ alert_email }}"
+        subject: "Disk usage alert on {{ inventory_hostname }}"
+        body: "Disk usage on {{ inventory_hostname }} is {{ root_disk_used_pct }}%, which exceeds 80%."
+      delegate_to: localhost
+      when:
+        - action == "check-disk"
+        - root_disk_used_pct > 80
+
+- name: Check application status using REST endpoint
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Query health endpoint
+      ansible.builtin.uri:
+        url: "{{ healthcheck_url }}"
+        method: GET
+        return_content: true
+      register: health_result
+      when: action == "check-status"
+
+    - name: Show rbcapp1 application status
+      ansible.builtin.debug:
+        msg:
+          - "Application status: {{ health_result.json.application_status }}"
+          - "Services: {{ health_result.json.services }}"
+          - "Down services: {{ health_result.json.services | dict2items | selectattr('value', 'equalto', 'DOWN') | map(attribute='key') | list }}"
+      when: action == "check-status"

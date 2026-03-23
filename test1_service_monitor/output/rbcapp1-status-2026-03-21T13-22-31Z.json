@@ -1,0 +1,29 @@
+{
+  "application_name": "rbcapp1",
+  "application_status": "DOWN",
+  "host_name": "DESKTOP-DA31B63",
+  "services": [
+    {
+      "service_name": "httpd",
+      "service_status": "DOWN",
+      "host_name": "DESKTOP-DA31B63",
+      "@timestamp": "2026-03-21T13:22:31Z",
+      "detected_service_name": "httpd"
+    },
+    {
+      "service_name": "rabbitmq-server",
+      "service_status": "DOWN",
+      "host_name": "DESKTOP-DA31B63",
+      "@timestamp": "2026-03-21T13:22:31Z",
+      "detected_service_name": "rabbitmq-server"
+    },
+    {
+      "service_name": "postgresql",
+      "service_status": "DOWN",
+      "host_name": "DESKTOP-DA31B63",
+      "@timestamp": "2026-03-21T13:22:31Z",
+      "detected_service_name": "postgresql"
+    }
+  ],
+  "@timestamp": "2026-03-21T13:22:31Z"
+}

@@ -1,0 +1,6 @@
+{
+  "service_name": "postgresql",
+  "service_status": "UP",
+  "host_name": "host3",
+  "@timestamp": "2026-03-21T10:00:00Z"
+}
